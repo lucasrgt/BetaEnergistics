@@ -21,6 +21,7 @@ portable host gate. The historical submodule can be removed from the monorepo
 after downstream references are updated; retaining it is optional and should
 not be treated as dependency management.
 
-This milestone does not migrate the whole mod to StationAPI, compile every
-Minecraft-linked class, or integrate BetaVault. Those need executable runtime
-gates of their own.
+The following integration milestone now compiles the real storage-cell domain
+against pinned BetaVault sources. The repository still does not migrate the
+whole mod to StationAPI, compile every Minecraft-linked class, or extend the
+vanilla ItemStack transport; those need executable runtime gates of their own.

@@ -17,3 +17,20 @@ jobs:
           distribution: temurin
           java-version: "21"
       - run: java tools/harness/Verify.java
+
+  betavault-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: lucasrgt/betavault
+          ref: 22d28a06f1baf431365f0951f8a352d8995d734b
+          path: .betaenergistics/dependencies/betavault
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: java tools/harness/Verify.java --integration
+        env:
+          BETAVAULT_ROOT: .betaenergistics/dependencies/betavault

@@ -17,13 +17,17 @@ public final class Verify {
     private final Path build = root.resolve(".betaenergistics/build");
     private final Properties config = new Properties();
     private final Properties legacy = new Properties();
+    private final boolean integration;
+
+    private Verify(boolean integration) { this.integration = integration; }
 
     public static void main(String[] arguments) {
-        if (arguments.length != 0) {
-            System.err.println("usage: java tools/harness/Verify.java");
+        boolean integration = Arrays.equals(arguments, new String[] {"--integration"});
+        if (arguments.length > 0 && !integration) {
+            System.err.println("usage: java tools/harness/Verify.java [--integration]");
             System.exit(2);
         }
-        try { new Verify().execute(); }
+        try { new Verify(integration).execute(); }
         catch (Exception error) {
             System.err.println("verify failed: " + error.getMessage());
             System.exit(1);
@@ -38,10 +42,13 @@ public final class Verify {
         enforceProduct();
         enforceSimple("harness", root.resolve("tools/harness"), integer("harness.max.file"));
         enforceSimple("test", root.resolve("tests"), integer("test.max.file"));
+        enforceSimple("integration", root.resolve(value("integration.sources")), integer("product.max.file"));
+        enforceSimple("integration test", root.resolve(value("integration.tests")), integer("test.max.file"));
         verifyPackages();
         verifyPublicTree();
         recreateBuild();
         compileAndTest();
+        if (integration) run(command("java", "tools/harness/BetaVaultIntegrationCheck.java"));
         System.out.println("verify passed");
     }
 
@@ -54,7 +61,7 @@ public final class Verify {
         match(release, "status", value("release.status"));
         match(release, "canonical.command", "java tools/harness/Verify.java");
         for (String required : Arrays.asList("README.md", "AGENTS.md", "dependency-lock.properties",
-                "docs/STANDALONE_COMPARISON.md")) {
+                "docs/STANDALONE_COMPARISON.md", "docs/BETAVAULT_INTEGRATION.md")) {
             if (!Files.isRegularFile(root.resolve(required))) fail("missing " + required);
         }
         System.out.println("  release: " + release.getProperty("version") + " " + release.getProperty("status"));

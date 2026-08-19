@@ -41,11 +41,29 @@ bash scripts/transpile.sh
 The legacy scripts are retained for compatibility. A modern mapped runtime
 build and the BetaVault integration are separate milestones.
 
+## BetaVault integration gate
+
+The integration module uses the pinned BetaVault revision without vendoring or
+a Git submodule. Set `BETAVAULT_ROOT` to a checkout, or keep it as the sibling
+`../betavault`, then run:
+
+```text
+java tools/harness/Verify.java --integration
+```
+
+This gate compiles the real BetaEnergistics item-key type with the real
+BetaVault store and Minecraft reference adapter. It proves stable cell
+identity across a physical copy, rejection of a stale duplicate extraction,
+save/restart equivalence, and cross-world rejection. Carrying the canonical
+reference through Beta 1.7.3 `ItemStack` save and network codecs remains a
+Worldline-controlled runtime boundary.
+
 ## Layout
 
 - `src/betaenergistics/`: original organized mod source
 - `scripts/`: legacy RetroMCP transpile and launch workflows
 - `tests/`: host contract tests
+- `integrations/betavault/`: storage-cell codec and save-bound adapter
 - `tools/harness/`: canonical repository gate
 - `docs/STANDALONE_COMPARISON.md`: comparison with the old workspace pointer
 

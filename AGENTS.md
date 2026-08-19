@@ -34,3 +34,12 @@ java tools/harness/Verify.java
 This zero-dependency gate enforces source ceilings, package layout, release
 metadata, Java 8 compilation for the dependency-free core slice, and its test
 suite. Full Minecraft runtime qualification remains a separate future gate.
+
+Changes to the BetaVault adapter must also pass:
+
+```text
+java tools/harness/Verify.java --integration
+```
+
+That gate uses the exact revision in `dependency-lock.properties`. It may use
+`BETAVAULT_ROOT`; BetaVault source must never be copied into this repository.
