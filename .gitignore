@@ -4,6 +4,8 @@ mcp/
 # Temp/staging
 temp/
 temp_build/
+.betaenergistics/
+dependencies.local
 
 # Test artifacts (jars, compiled output, tmp)
 tests/data/

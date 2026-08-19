@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
+MCP_ROOT="${BE_MCP_ROOT:-$BASE/mcp}"
 cd "$BASE"
 
 # Convert MSYS /c/ paths to Windows C:/ for javac/java compatibility
@@ -12,12 +13,12 @@ echo "=== Transpiling ==="
 bash scripts/transpile.sh
 
 echo "=== Recompiling ==="
-cd "$BASE/mcp"
+cd "$MCP_ROOT"
 echo "recompile" | java -jar RetroMCP-Java-CLI.jar
 cd "$BASE"
 
 # Windows paths for javac/java classpath
-WBIN="$(win_path "$BASE/mcp/minecraft/bin")"
+WBIN="$(win_path "$MCP_ROOT/minecraft/bin")"
 WJUNIT="$(win_path "$BASE/tests/libs/junit-4.13.2.jar")"
 WHAMCREST="$(win_path "$BASE/tests/libs/hamcrest-core-1.3.jar")"
 WTEST_OUT="$(win_path "$BASE/tests/out")"

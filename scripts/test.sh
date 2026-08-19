@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
+MCP_ROOT="${BE_MCP_ROOT:-$BASE/mcp}"
 cd "$BASE"
 
 echo "=== Transpiling ==="
 bash scripts/transpile.sh
 
 echo "=== Building ==="
-cd "$BASE/mcp"
+cd "$MCP_ROOT"
 echo "build" | java -jar RetroMCP-Java-CLI.jar
 cd "$BASE"
 
@@ -18,7 +19,7 @@ cp tests/data/minecraft_test.jar tests/data/minecraft_run.jar
 TMP="$BASE/temp_build"
 rm -rf "$TMP" && mkdir -p "$TMP"
 cd "$TMP"
-jar xf "$BASE/mcp/build/minecraft.zip"
+jar xf "$MCP_ROOT/build/minecraft.zip"
 jar uf "$BASE/tests/data/minecraft_run.jar" *.class
 echo "Injected mod classes"
 
@@ -34,7 +35,7 @@ rm -rf "$TMP"
 
 mkdir -p "$BASE/tests/data/tmp"
 echo "=== Launching Minecraft ==="
-LIBS="mcp/libraries"
+LIBS="$MCP_ROOT/libraries"
 java -Xms1024M -Xmx1024M \
   -Djava.library.path="$LIBS/natives" \
   -Djava.io.tmpdir="$BASE/tests/data/tmp" \

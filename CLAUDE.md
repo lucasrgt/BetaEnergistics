@@ -28,7 +28,8 @@ Inspired by Refined Storage (simplicity) and Applied Energistics (depth).
   - `mod_BetaEnergistics.java` — main mod class (extends BaseModMp)
   - `BE_Recipes.java` — all crafting recipes
 - **Transpiled output (don't edit):** `mcp/minecraft/src/net/minecraft/src/`
-- **Libraries:** `../../../libraries/` (modellib + machineapi, shared across workspace)
+- **Dependencies:** revisions are pinned in `dependency-lock.properties`; legacy
+  transpilation receives checkout paths through `BE_DEPENDENCY_ROOTS`.
 
 ## Block IDs
 | ID | Block | Class |

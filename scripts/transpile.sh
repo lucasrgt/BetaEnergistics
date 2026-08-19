@@ -1,11 +1,17 @@
 #!/bin/bash
-# Transpiles organized src/betaenergistics/ + libraries/ -> flat mcp/minecraft/src/net/minecraft/src/
+# Transpiles organized mod and injected dependency sources into RetroMCP.
 # Rewrites packages and removes internal imports so RetroMCP can compile
 set -e
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$BASE/src/betaenergistics"
-LIBS="$BASE/../../../libraries"
-DEST="$BASE/mcp/minecraft/src/net/minecraft/src"
+MCP_ROOT="${BE_MCP_ROOT:-$BASE/mcp}"
+DEST="$MCP_ROOT/minecraft/src/net/minecraft/src"
+
+if [ ! -d "$DEST" ]; then
+    echo "Missing RetroMCP source tree: $DEST" >&2
+    echo "Set BE_MCP_ROOT to an initialized external RetroMCP workspace." >&2
+    exit 1
+fi
 
 # Remove old transpiled mod files (only BE_ prefixed + Aero_ prefixed + mod_BetaEnergistics)
 find "$DEST" -maxdepth 1 -name "BE_*.java" -delete 2>/dev/null || true
@@ -28,23 +34,26 @@ transpile_file() {
         "$file" > "$DEST/$filename"
 }
 
-# Transpile libraries (aero modellib, machineapi, devtools)
+# Transpile explicitly injected dependencies. Paths are semicolon-separated so
+# Windows drive letters remain valid in MSYS shells.
 LIB_COUNT=0
-if [ -d "$LIBS" ]; then
-    if [ "$AERO_RELEASE" = "1" ]; then
-        find "$LIBS" -name "*.java" -not -path "*/devtools/*" -not -path "*/modellib/stationapi/*" -not -path "*/modellib/modloader/tests/*" | while read -r file; do
-            transpile_file "$file"
-        done
-        LIB_COUNT=$(find "$LIBS" -name '*.java' -not -path "*/devtools/*" -not -path "*/modellib/stationapi/*" -not -path "*/modellib/modloader/tests/*" | wc -l)
-        # Defense in depth: remove any devtools that leaked
-        find "$DEST" -maxdepth 1 -name "Aero_Dev*.java" -delete 2>/dev/null || true
-        echo "[RELEASE] Excluded devtools from transpile"
-    else
-        find "$LIBS" -name "*.java" -not -path "*/tools/*" -not -path "*/scripts/*" -not -path "*/modellib/stationapi/*" -not -path "*/modellib/modloader/tests/*" | while read -r file; do
-            transpile_file "$file"
-        done
-        LIB_COUNT=$(find "$LIBS" -name '*.java' -not -path "*/tools/*" -not -path "*/scripts/*" -not -path "*/modellib/stationapi/*" -not -path "*/modellib/modloader/tests/*" | wc -l)
+IFS=';' read -r -a DEPENDENCY_ROOTS <<< "${BE_DEPENDENCY_ROOTS:-}"
+for dependency in "${DEPENDENCY_ROOTS[@]}"; do
+    [ -n "$dependency" ] || continue
+    if [ ! -d "$dependency" ]; then
+        echo "Missing dependency source root: $dependency" >&2
+        exit 1
     fi
+    while IFS= read -r file; do
+        transpile_file "$file"
+        LIB_COUNT=$((LIB_COUNT + 1))
+    done < <(find "$dependency" -name '*.java' -not -path '*/tools/*' -not -path '*/scripts/*' \
+        -not -path '*/stationapi/*' -not -path '*/tests/*' | sort)
+done
+
+if [ "$AERO_RELEASE" = "1" ]; then
+    find "$DEST" -maxdepth 1 -name "Aero_Dev*.java" -delete 2>/dev/null || true
+    echo "[RELEASE] Excluded devtools from transpile"
 fi
 
 # Transpile mod source
