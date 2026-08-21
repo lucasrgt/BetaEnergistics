@@ -10,7 +10,7 @@ import static worldline.test.Worldline.describe;
 import static worldline.test.Worldline.test;
 
 /** External TestKit consumer for deterministic catalog invariants. */
-public final class CatalogHyperperformanceSpec extends WorldlineSpec {
+public final class CatalogHyperperformanceWorldlineTest extends WorldlineSpec {
     @Override protected void define() {
         describe("BetaEnergistics catalog", () -> {
             test("keeps idle work independent of provider count", context -> {

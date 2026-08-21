@@ -68,10 +68,10 @@ not scan physical storage. See [the architecture](docs/HYPERPERFORMANCE.md).
 
 Mod authors can add host and official-runtime specs through the
 [Worldline extension guide](docs/WORLDLINE_EXTENSION.md). Packaged TestKit
-consumer specs are under `worldline-tests/` and run with:
+consumer specs are under `tests/worldline/` and run with the isolated Gradle build:
 
 ```text
-WORLDLINE_TESTKIT_HOME=/path/to/worldline-testkit java tools/testkit/Run.java
+tests/worldline/gradlew.bat -p tests/worldline worldlineDoctor worldlineTest
 ```
 
 The official ModLoader adapter fails closed until a legitimate legacy
@@ -82,10 +82,10 @@ downloaded by this repository.
 
 - `src/betaenergistics/`: original organized mod source
 - `scripts/`: legacy RetroMCP transpile and launch workflows
-- `tests/`: host contract tests
+- `tests/src/`: host contract tests
+- `tests/worldline/`: external Gradle TestKit consumer specifications
 - `integrations/betavault/`: storage-cell codec and save-bound adapter
 - `optimizations/catalog/`: candidate Worldline optimization records
-- `worldline-tests/`: external TestKit consumer specifications
 - `tools/harness/`: canonical repository gate
 - `docs/STANDALONE_COMPARISON.md`: comparison with the old workspace pointer
 

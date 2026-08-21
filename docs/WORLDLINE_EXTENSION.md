@@ -1,14 +1,14 @@
 # Worldline extension for BetaEnergistics
 
 The extension is an adapter, not a Minecraft dependency in product code. A
-consumer compiles Java 8 specs against `worldline-test-api-0.1.0.jar`; the
-Worldline runner and runtime provider stay on the test side.
+consumer compiles Java 8 specs through the `dev.worldline.test` Gradle plugin;
+the Worldline runner and runtime provider stay on the test side.
 
-Host-only specifications live under `worldline-tests/src/test/java` and run
+Host-only specifications live under `tests/worldline/src/test/java` and run
 without Minecraft:
 
 ```text
-WORLDLINE_TESTKIT_HOME=/path/to/worldline-testkit java tools/testkit/Run.java
+tests/worldline/gradlew.bat -p tests/worldline worldlineDoctor worldlineTest
 ```
 
 An official legacy provider must implement `TestRuntimeProvider` and return a

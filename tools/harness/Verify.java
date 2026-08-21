@@ -122,6 +122,9 @@ public final class Verify {
             for (Path path : paths.filter(Files::isRegularFile).collect(Collectors.toList())) {
                 String relative = relative(path).toLowerCase();
                 if (relative.startsWith(".git/") || relative.startsWith(".betaenergistics/")) continue;
+                if (relative.startsWith("tests/worldline/.gradle/")
+                        || relative.startsWith("tests/worldline/build/")
+                        || relative.equals("tests/worldline/gradle/wrapper/gradle-wrapper.jar")) continue;
                 if (relative.endsWith(".class") || relative.endsWith(".jar") || relative.startsWith("mcp/")) {
                     fail("prohibited generated or binary artifact: " + relative(path));
                 }
