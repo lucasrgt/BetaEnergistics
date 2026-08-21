@@ -27,6 +27,11 @@ public final class BE_CellVault {
         return new BE_CellMutation(vault.store().begin(), handle(reference));
     }
 
+    public BE_CellMutation begin(VaultReference reference, BE_CellCommitListener listener) {
+        if (listener == null) throw new NullPointerException("listener");
+        return new BE_CellMutation(vault.store().begin(), handle(reference), listener);
+    }
+
     public String worldId() { return vault.worldId(); }
 
     private Handle<BE_CellRecord> handle(VaultReference reference) {

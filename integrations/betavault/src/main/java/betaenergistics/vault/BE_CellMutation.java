@@ -9,12 +9,21 @@ import betavault.store.VaultTransaction;
 public final class BE_CellMutation implements AutoCloseable {
     private final VaultTransaction transaction;
     private final Handle<BE_CellRecord> handle;
+    private final BE_CellCommitListener listener;
+    private final BE_CellRecord before;
     private BE_CellRecord record;
 
     BE_CellMutation(VaultTransaction transaction, Handle<BE_CellRecord> handle) {
+        this(transaction, handle, null);
+    }
+
+    BE_CellMutation(VaultTransaction transaction, Handle<BE_CellRecord> handle,
+            BE_CellCommitListener listener) {
         this.transaction = transaction;
         this.handle = handle;
         this.record = transaction.read(handle);
+        this.before = record;
+        this.listener = listener;
     }
 
     public int extract(BE_ItemKey key, int requested) {
@@ -35,7 +44,9 @@ public final class BE_CellMutation implements AutoCloseable {
 
     public TransactionResult commit() {
         transaction.write(handle, record);
-        return transaction.commit();
+        TransactionResult result = transaction.commit();
+        if (listener != null) listener.committed(before, record);
+        return result;
     }
 
     @Override public void close() { transaction.close(); }

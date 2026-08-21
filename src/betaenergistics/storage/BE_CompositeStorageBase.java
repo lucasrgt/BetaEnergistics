@@ -16,7 +16,7 @@ import java.util.Map;
  * Subclasses provide type-specific insert/extract/getAll delegation.
  */
 public abstract class BE_CompositeStorageBase {
-    protected final List storages = new ArrayList();
+    protected final List<Object> storages = new ArrayList<Object>();
     protected boolean needsSort = false;
 
     public void addStorageImpl(Object storage) {
@@ -53,7 +53,7 @@ public abstract class BE_CompositeStorageBase {
     protected abstract int doGetCount(Object storage, Object key);
 
     /** Get all entries from a single storage as a Map. */
-    protected abstract Map doGetAll(Object storage);
+    protected abstract Map<?, Integer> doGetAll(Object storage);
 
     /** Get stored amount from a single storage. */
     protected abstract int doGetStored(Object storage);
@@ -61,9 +61,14 @@ public abstract class BE_CompositeStorageBase {
     /** Get capacity from a single storage. */
     protected abstract int doGetCapacity(Object storage);
 
+    /** Called after a committed mutation; subclasses may update an index. */
+    protected void onMutation(Object storage, Object key, int delta) {
+        // Optional for legacy fluid and gas composites.
+    }
+
     protected void ensureSorted() {
         if (needsSort) {
-            Collections.sort(storages, new Comparator() {
+            Collections.sort(storages, new Comparator<Object>() {
                 public int compare(Object a, Object b) {
                     return getStoragePriority(b) - getStoragePriority(a); // descending
                 }
@@ -78,6 +83,7 @@ public abstract class BE_CompositeStorageBase {
         for (int i = 0; i < storages.size(); i++) {
             if (remaining <= 0) break;
             int inserted = doInsert(storages.get(i), key, remaining, simulate);
+            if (!simulate && inserted > 0) onMutation(storages.get(i), key, inserted);
             remaining -= inserted;
         }
         return amount - remaining;
@@ -89,6 +95,7 @@ public abstract class BE_CompositeStorageBase {
         for (int i = 0; i < storages.size(); i++) {
             if (remaining <= 0) break;
             int extracted = doExtract(storages.get(i), key, remaining, simulate);
+            if (!simulate && extracted > 0) onMutation(storages.get(i), key, -extracted);
             remaining -= extracted;
         }
         return amount - remaining;
@@ -102,16 +109,16 @@ public abstract class BE_CompositeStorageBase {
         return total;
     }
 
-    protected Map getAllMerged() {
-        Map merged = new HashMap();
+    protected Map<Object, Integer> getAllMerged() {
+        Map<Object, Integer> merged = new HashMap<Object, Integer>();
         for (int i = 0; i < storages.size(); i++) {
-            Map subMap = doGetAll(storages.get(i));
-            java.util.Iterator it = subMap.entrySet().iterator();
+            Map<?, Integer> subMap = doGetAll(storages.get(i));
+            java.util.Iterator<? extends Map.Entry<?, Integer>> it = subMap.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry entry = (Map.Entry) it.next();
+                Map.Entry<?, Integer> entry = it.next();
                 Object key = entry.getKey();
-                Integer existing = (Integer) merged.get(key);
-                int val = ((Integer) entry.getValue()).intValue();
+                Integer existing = merged.get(key);
+                int val = entry.getValue().intValue();
                 merged.put(key, Integer.valueOf((existing != null ? existing.intValue() : 0) + val));
             }
         }

@@ -46,6 +46,7 @@ public final class Verify {
         enforceSimple("integration test", root.resolve(value("integration.tests")), integer("test.max.file"));
         verifyPackages();
         verifyPublicTree();
+        run(command("java", "tools/harness/OptimizationRecordsCheck.java"));
         recreateBuild();
         compileAndTest();
         if (integration) run(command("java", "tools/harness/BetaVaultIntegrationCheck.java"));
@@ -61,7 +62,8 @@ public final class Verify {
         match(release, "status", value("release.status"));
         match(release, "canonical.command", "java tools/harness/Verify.java");
         for (String required : Arrays.asList("README.md", "AGENTS.md", "dependency-lock.properties",
-                "docs/STANDALONE_COMPARISON.md", "docs/BETAVAULT_INTEGRATION.md")) {
+                "docs/STANDALONE_COMPARISON.md", "docs/BETAVAULT_INTEGRATION.md",
+                "docs/HYPERPERFORMANCE.md", "docs/WORLDLINE_EXTENSION.md")) {
             if (!Files.isRegularFile(root.resolve(required))) fail("missing " + required);
         }
         System.out.println("  release: " + release.getProperty("version") + " " + release.getProperty("status"));

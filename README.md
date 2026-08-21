@@ -17,8 +17,10 @@ java tools/harness/Verify.java
 ```
 
 The mini harness verifies release metadata, package placement, source-file
-ceilings, the absence of generated Minecraft artifacts, and a dependency-free
-core contract suite. Current files over 200 code lines are recorded as a
+ceilings, the absence of generated Minecraft artifacts, and the Java 8 core.
+It qualifies the incremental catalog through 100,000 providers, deterministic
+soak, immutable views, and zero-scan idle work. Current files over 200 code
+lines are recorded as a
 strict ratchet: they cannot grow, and their allowance must be reduced whenever
 they are refactored.
 
@@ -58,12 +60,32 @@ save/restart equivalence, and cross-world rejection. Carrying the canonical
 reference through Beta 1.7.3 `ItemStack` save and network codecs remains a
 Worldline-controlled runtime boundary.
 
+## Hyperperformance and Worldline
+
+The storage catalog is mutation-driven: exact provider deltas update stable
+shards and a global lookup table; discovery, terminal search, and idle ticks do
+not scan physical storage. See [the architecture](docs/HYPERPERFORMANCE.md).
+
+Mod authors can add host and official-runtime specs through the
+[Worldline extension guide](docs/WORLDLINE_EXTENSION.md). Packaged TestKit
+consumer specs are under `worldline-tests/` and run with:
+
+```text
+WORLDLINE_TESTKIT_HOME=/path/to/worldline-testkit java tools/testkit/Run.java
+```
+
+The official ModLoader adapter fails closed until a legitimate legacy
+toolchain and Minecraft test JAR are configured. Neither is vendored or
+downloaded by this repository.
+
 ## Layout
 
 - `src/betaenergistics/`: original organized mod source
 - `scripts/`: legacy RetroMCP transpile and launch workflows
 - `tests/`: host contract tests
 - `integrations/betavault/`: storage-cell codec and save-bound adapter
+- `optimizations/catalog/`: candidate Worldline optimization records
+- `worldline-tests/`: external TestKit consumer specifications
 - `tools/harness/`: canonical repository gate
 - `docs/STANDALONE_COMPARISON.md`: comparison with the old workspace pointer
 

@@ -78,7 +78,7 @@ public final class BetaVaultIntegrationCheck {
     private Path compileIntegration(List<Path> dependencies) throws Exception {
         Path output = build.resolve("product");
         List<Path> sources = javaFiles(root.resolve(value(harness, "integration.sources")));
-        sources.add(root.resolve("src/betaenergistics/storage/BE_ItemKey.java"));
+        for (String source : values(harness, "compile.sources")) sources.add(root.resolve(source));
         compile(sources, output, dependencies);
         return output;
     }
