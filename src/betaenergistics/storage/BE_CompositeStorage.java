@@ -20,7 +20,9 @@ public class BE_CompositeStorage extends BE_CompositeStorageBase {
     private final boolean indexed;
     private long nextProviderId;
 
-    public BE_CompositeStorage() { this(false); }
+    public BE_CompositeStorage() {
+        this(Boolean.getBoolean("betaenergistics.storage.incrementalCatalog"));
+    }
 
     public BE_CompositeStorage(boolean indexed) { this.indexed = indexed; }
 

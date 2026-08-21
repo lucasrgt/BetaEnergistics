@@ -39,8 +39,9 @@ Full-network scanning is not a normal-operation fallback.
 | BE-X7 | Restart and soak | 50,000 deterministic mutations match a reference model; BetaVault restart reconstructs the same catalog. Official multiplayer/runtime soak remains gated by BE-X1. |
 
 The records under `optimizations/catalog` remain `candidate` and disabled by
-default. `new BE_CompositeStorage()` retains legacy aggregation;
-`new BE_CompositeStorage(true)` opts into the candidate index. Host tests prove
+default. `new BE_CompositeStorage()` retains legacy aggregation unless the
+runtime explicitly sets `-Dbetaenergistics.storage.incrementalCatalog=true`;
+`new BE_CompositeStorage(true)` is the programmatic opt-in. Host tests prove
 the architecture, not vanilla runtime equivalence.
 Promotion requires external Worldline specs plus serialized official smokes.
 
