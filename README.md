@@ -88,6 +88,7 @@ downloaded by this repository.
 - `integrations/betavault/`: storage-cell codec and save-bound adapter
 - `optimizations/catalog/`: candidate Worldline optimization records
 - `tools/harness/`: canonical repository gate
+- `docs/REFACTOR_PLAN.md`: ordered, ratcheted total-refactor program
 - `docs/STANDALONE_COMPARISON.md`: comparison with the old workspace pointer
 
 No official Minecraft JAR, assets, or decompiled sources belong in this

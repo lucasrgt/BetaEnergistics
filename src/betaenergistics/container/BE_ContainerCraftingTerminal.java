@@ -5,14 +5,13 @@ import betaenergistics.mod_BetaEnergistics;
 import betaenergistics.network.BE_PacketHandler;
 import betaenergistics.network.BE_StorageNetwork;
 import betaenergistics.storage.BE_ItemKey;
+import betaenergistics.terminal.BE_TerminalOrder;
 import betaenergistics.tile.BE_TileAutocrafter;
 import betaenergistics.tile.BE_TileCraftingTerminal;
 
 import net.minecraft.src.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +27,9 @@ import java.util.Map;
  *   37-45: Hotbar
  */
 public class BE_ContainerCraftingTerminal extends Container {
-    public static final int SORT_BY_ID = 0;
-    public static final int SORT_BY_NAME = 1;
-    public static final int SORT_BY_QUANTITY = 2;
+    public static final int SORT_BY_ID = BE_TerminalOrder.BY_ID;
+    public static final int SORT_BY_NAME = BE_TerminalOrder.BY_NAME;
+    public static final int SORT_BY_QUANTITY = BE_TerminalOrder.BY_QUANTITY;
     public static final String[] SORT_NAMES = {"ID", "Name", "Qty"};
 
     private static final int RESULT_SLOT = 9;
@@ -43,6 +42,10 @@ public class BE_ContainerCraftingTerminal extends Container {
     private IInventory craftResult = new InventoryCraftResult();
     private List<BE_GridEntry> cachedItems = new ArrayList<BE_GridEntry>();
     private int sortMode = SORT_BY_ID;
+    private static final BE_TerminalOrder.NameResolver ITEM_NAMES =
+            new BE_TerminalOrder.NameResolver() {
+                public String name(BE_ItemKey key) { return getItemName(key); }
+            };
 
     /** Tracks what item should be in each craft slot for auto-refill. */
     private BE_ItemKey[] recipeTemplate = new BE_ItemKey[9];
@@ -289,7 +292,7 @@ public class BE_ContainerCraftingTerminal extends Container {
 
     public int getSortMode() { return sortMode; }
 
-    public void cycleSortMode() { sortMode = (sortMode + 1) % 3; }
+    public void cycleSortMode() { sortMode = BE_TerminalOrder.normalize(sortMode + 1); }
 
     public void refreshItems() {
         cachedItems.clear();
@@ -298,34 +301,7 @@ public class BE_ContainerCraftingTerminal extends Container {
             for (Map.Entry<BE_ItemKey, Integer> entry : networkItems.entrySet()) {
                 cachedItems.add(new BE_GridEntry(entry.getKey(), entry.getValue()));
             }
-            switch (sortMode) {
-                case SORT_BY_NAME:
-                    Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                        public int compare(BE_GridEntry a, BE_GridEntry b) {
-                            String nameA = getItemName(a.key);
-                            String nameB = getItemName(b.key);
-                            int cmp = nameA.compareToIgnoreCase(nameB);
-                            return cmp != 0 ? cmp : a.key.itemId - b.key.itemId;
-                        }
-                    });
-                    break;
-                case SORT_BY_QUANTITY:
-                    Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                        public int compare(BE_GridEntry a, BE_GridEntry b) {
-                            int cmp = b.count - a.count;
-                            return cmp != 0 ? cmp : a.key.itemId - b.key.itemId;
-                        }
-                    });
-                    break;
-                default:
-                    Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                        public int compare(BE_GridEntry a, BE_GridEntry b) {
-                            int cmp = a.key.itemId - b.key.itemId;
-                            return cmp != 0 ? cmp : a.key.damageValue - b.key.damageValue;
-                        }
-                    });
-                    break;
-            }
+            applySortOrder();
         }
     }
 
@@ -525,43 +501,19 @@ public class BE_ContainerCraftingTerminal extends Container {
 
     /** Apply the current sort mode to cached items. */
     private void applySortOrder() {
-        switch (sortMode) {
-            case SORT_BY_NAME:
-                Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                    public int compare(BE_GridEntry a, BE_GridEntry b) {
-                        String nameA = getItemName(a.key);
-                        String nameB = getItemName(b.key);
-                        int cmp = nameA.compareToIgnoreCase(nameB);
-                        return cmp != 0 ? cmp : a.key.itemId - b.key.itemId;
-                    }
-                });
-                break;
-            case SORT_BY_QUANTITY:
-                Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                    public int compare(BE_GridEntry a, BE_GridEntry b) {
-                        int cmp = b.count - a.count;
-                        return cmp != 0 ? cmp : a.key.itemId - b.key.itemId;
-                    }
-                });
-                break;
-            default:
-                Collections.sort(cachedItems, new Comparator<BE_GridEntry>() {
-                    public int compare(BE_GridEntry a, BE_GridEntry b) {
-                        int cmp = a.key.itemId - b.key.itemId;
-                        return cmp != 0 ? cmp : a.key.damageValue - b.key.damageValue;
-                    }
-                });
-                break;
-        }
+        BE_TerminalOrder.sort(cachedItems, sortMode, ITEM_NAMES);
     }
 
     /** Entry in the virtual grid. */
-    public static class BE_GridEntry {
+    public static class BE_GridEntry implements BE_TerminalOrder.Entry {
         public final BE_ItemKey key;
         public int count;
         public BE_GridEntry(BE_ItemKey key, int count) {
             this.key = key;
             this.count = count;
         }
+
+        public BE_ItemKey key() { return key; }
+        public int count() { return count; }
     }
 }
