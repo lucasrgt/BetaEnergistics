@@ -197,7 +197,8 @@ the explicit constructor opt-in or:
 -Dbetaenergistics.storage.incrementalCatalog=true
 ```
 
-The optimization records under `optimizations/catalog/` remain `candidate`.
+The optimization records under `worldline/optimizations/catalog/` remain
+`candidate`.
 They will not be promoted until the real ModLoader adapter and official runtime
 smokes cover the relevant mutation and lifecycle boundaries. See
 [Hyperperformance architecture](docs/HYPERPERFORMANCE.md).
@@ -231,6 +232,8 @@ ModLoader bootstrap
 | `gui/` | Client rendering, search, scrolling, previews, and user input |
 | `crafting/` | Recipe graphs, conservation, dependency planning, and execution requests |
 | `integrations/betavault/` | External cell identity, codec, commit bridge, and restart reconstruction |
+| `worldline/optimizations/` | Project-owned optimization metadata and evidence identities |
+| `worldline/extensions/` | Reserved namespace for real Worldline extension manifests |
 | `tests/worldline/` | Public TestKit consumer contracts, isolated from product runtime code |
 
 Original sources live only under `src/betaenergistics/`. RetroMCP output is a

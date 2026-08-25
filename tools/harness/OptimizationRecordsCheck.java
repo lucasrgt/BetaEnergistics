@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 /** Portable fail-closed validation for project-owned optimization records. */
 public final class OptimizationRecordsCheck {
     private static final Pattern ID = Pattern.compile("[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+");
+    private static final Pattern SYMBOL = Pattern.compile(
+            "[A-Za-z_$][A-Za-z0-9_$.]*#[A-Za-z_$][A-Za-z0-9_$]*");
     private static final Set<String> STATUS = new HashSet<String>(
             Arrays.asList("active", "candidate", "rejected", "retired", "unknown"));
     private static final String[] REQUIRED = {"schema", "id", "summary", "subsystem", "status",
@@ -24,7 +26,7 @@ public final class OptimizationRecordsCheck {
         catch (Exception error) { System.err.println("optimization records failed: " + error.getMessage()); System.exit(1); }
     }
     private static void execute() throws Exception {
-        Path directory = Paths.get("optimizations/catalog");
+        Path directory = Paths.get("worldline/optimizations/catalog");
         require(Files.isDirectory(directory), "missing catalog"); int count = 0;
         try (Stream<Path> paths = Files.list(directory)) {
             for (Path path : (Iterable<Path>) paths.filter(Files::isRegularFile)
@@ -43,11 +45,24 @@ public final class OptimizationRecordsCheck {
                 require(enabled.equals("true") || enabled.equals("false"), "invalid default " + id);
                 require(status.equals("active") || enabled.equals("false"), "non-active optimization enabled " + id);
                 require(value(record, "tracking").equals("symbol"), "external records must use symbol tracking " + id);
+                for (String symbol : value(record, "source.symbols").split(",")) {
+                    validateSymbol(symbol.trim(), id);
+                }
                 count++;
             }
         }
         require(count > 0, "empty optimization catalog");
         System.out.println("  optimization records: " + count + " candidate records PASS");
+    }
+    private static void validateSymbol(String symbol, String id) throws Exception {
+        require(SYMBOL.matcher(symbol).matches(), "invalid source symbol " + symbol + " in " + id);
+        int separator = symbol.indexOf('#');
+        String type = symbol.substring(0, separator), member = symbol.substring(separator + 1);
+        Path source = Paths.get("src").resolve(type.replace('.', '/') + ".java");
+        require(Files.isRegularFile(source), "source type is absent " + type + " in " + id);
+        String text = new String(Files.readAllBytes(source), StandardCharsets.UTF_8);
+        require(Pattern.compile("\\b" + Pattern.quote(member) + "\\s*\\(").matcher(text).find(),
+                "source member is absent " + symbol + " in " + id);
     }
     private static String value(Properties record, String key) {
         String value = record.getProperty(key); return value == null || value.trim().isEmpty() ? null : value.trim();

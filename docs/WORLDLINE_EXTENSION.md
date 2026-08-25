@@ -5,6 +5,12 @@ consumer compiles Java 8 specs through the
 `io.github.lucasrgt.worldline.test` Gradle plugin;
 the Worldline runner and runtime provider stay on the test side.
 
+Worldline metadata is namespaced under `worldline/`. A real semantic overlay
+must publish its project-owned manifest at
+`worldline/extensions/<id>/manifest.properties`. The current host-only TestKit
+specifications do not bind runtime overlay sites, so this repository reserves
+the namespace without claiming an extension manifest.
+
 Host-only specifications live under `tests/worldline/src/test/java` and run
 without Minecraft:
 
