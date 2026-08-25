@@ -1,7 +1,8 @@
 # Worldline extension for BetaEnergistics
 
 The extension is an adapter, not a Minecraft dependency in product code. A
-consumer compiles Java 8 specs through the `dev.worldline.test` Gradle plugin;
+consumer compiles Java 8 specs through the
+`io.github.lucasrgt.worldline.test` Gradle plugin;
 the Worldline runner and runtime provider stay on the test side.
 
 Host-only specifications live under `tests/worldline/src/test/java` and run

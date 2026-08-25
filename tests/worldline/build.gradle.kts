@@ -1,4 +1,4 @@
-plugins { id("dev.worldline.test") version "0.2.0" }
+plugins { id("io.github.lucasrgt.worldline.test") version "0.3.0" }
 
 val verifyMod by tasks.registering(Exec::class) {
     workingDir("../..")

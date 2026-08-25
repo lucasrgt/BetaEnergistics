@@ -67,8 +67,9 @@ shards and a global lookup table; discovery, terminal search, and idle ticks do
 not scan physical storage. See [the architecture](docs/HYPERPERFORMANCE.md).
 
 Mod authors can add host and official-runtime specs through the
-[Worldline extension guide](docs/WORLDLINE_EXTENSION.md). Packaged TestKit
-consumer specs are under `tests/worldline/` and run with the isolated Gradle build:
+[Worldline extension guide](docs/WORLDLINE_EXTENSION.md). The consumer suite
+resolves `io.github.lucasrgt.worldline.test:0.3.0` from the Gradle Plugin
+Portal under `tests/worldline/`:
 
 ```text
 tests/worldline/gradlew.bat -p tests/worldline worldlineDoctor worldlineTest
